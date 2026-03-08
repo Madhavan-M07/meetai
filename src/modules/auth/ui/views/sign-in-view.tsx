@@ -19,8 +19,9 @@ import {
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { FaGoogle, FaGithub } from "react-icons/fa";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -30,7 +31,7 @@ const formSchema = z.object({
 export const SignInView = () => {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [pending , setPending] = useState(false);
+  const [pending, setPending] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,19 +49,39 @@ export const SignInView = () => {
       {
         email: data.email,
         password: data.password,
+        callbackURL:"/"
       },
       {
         onSuccess: () => {
+         
+          setPending(false);
           router.push("/");
-          setPending(false);  
         },
         onError: ({ error }) => {
           setError(error.message);
-
         },
       },
     );
+  };
 
+  const onSocial = (provider: "google" | "github") => {
+    setError(null);
+    setPending(true);
+
+    authClient.signIn.social(
+      {
+        provider: provider,
+        callbackURL:"/"
+      },
+      {
+        onSuccess: () => {
+          setPending(false);
+        },
+        onError: ({ error }) => {
+          setError(error.message);
+        },
+      },
+    );
   };
 
   return (
@@ -68,7 +89,10 @@ export const SignInView = () => {
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 md:p-8 ">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="p-6 md:p-8 "
+            >
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col items-center text-center">
                   <h1 className="text-2xl font-bold">Welcome back</h1>
@@ -121,30 +145,44 @@ export const SignInView = () => {
                     <AlertTitle>{error}</AlertTitle>
                   </Alert>
                 )}
-                <Button disabled={pending} type="submit" className="w-full">
+                <Button disabled={pending} type="submit" className="w-full cursor-pointer">
                   Sign in
                 </Button>
                 <div
                   className="after:border-border relative text-center text-sm after:absolute after:inset-0
                 after:top-1/2 after:z-0 after:flex after:items-center after:border-t"
                 >
-                  <span className="bg-card text-muted-foreground relative z-10 px-2">
+                  <span className="bg-card text-muted-foreground relative cursor-pointer z-10 px-2">
                     Or Continue With
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <Button disabled={pending} variant="outline" type="button" className="w-full">
-                    Google
+                  <Button
+                    disabled={pending}
+                    variant="outline"
+                    type="button"
+                    className="w-full cursor-pointer"
+                    onClick={() => onSocial("google")}
+                  >
+                    <FaGoogle />
+                  
                   </Button>
-                  <Button disabled={pending}  variant="outline" type="button" className="w-full">
-                    Github
+                  <Button
+                    disabled={pending}
+                    variant="outline"
+                    type="button"
+                    className="w-full cursor-pointer"
+                    onClick={() => onSocial("github")}
+                  >
+                    <FaGithub />
+                  
                   </Button>
                 </div>
-                <div className="text-center text-sm">
+                <div className="text-center cursor-pointer text-sm">
                   Don&apos;t have an account?{" "}
                   <Link
                     href="/sign-up"
-                    className="underline underline-offset-4"
+                    className="underline underline-offset-4 cursor-pointer"
                   >
                     Sign Up
                   </Link>

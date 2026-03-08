@@ -19,8 +19,9 @@ import {
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { FaGoogle, FaGithub } from "react-icons/fa";
 
 const formSchema = z
   .object({
@@ -58,10 +59,31 @@ export const SignUpView = () => {
         name: data.name,
         email: data.email,
         password: data.password,
+        callbackURL:"/"
+      },
+      {
+        onSuccess: () => {  
+          setPending(false);
+          router.push("/");
+        },
+        onError: ({ error }) => {
+          setError(error.message);
+        },
+      },
+    );
+  };
+
+    const onSocial = (provider: "google" | "github") => {
+    setError(null);
+    setPending(true);
+
+    authClient.signIn.social(
+      {
+        provider: provider,
+        callbackURL:"/"
       },
       {
         onSuccess: () => {
-          router.push("/");
           setPending(false);
         },
         onError: ({ error }) => {
@@ -141,7 +163,7 @@ export const SignUpView = () => {
                     )}
                   ></FormField>
                 </div>
-                   <div className="grid gap-3">
+                <div className="grid gap-3">
                   <FormField
                     control={form.control}
                     name="confirmPassword"
@@ -167,7 +189,7 @@ export const SignUpView = () => {
                   </Alert>
                 )}
                 <Button disabled={pending} type="submit" className="w-full">
-                  Sign in
+                  Sign Up
                 </Button>
                 <div
                   className="after:border-border relative text-center text-sm after:absolute after:inset-0
@@ -183,23 +205,27 @@ export const SignUpView = () => {
                     variant="outline"
                     type="button"
                     className="w-full"
+                    onClick={() => onSocial("google")}
                   >
-                    Google
+                    <FaGoogle />
+                    
                   </Button>
                   <Button
                     disabled={pending}
                     variant="outline"
                     type="button"
                     className="w-full"
+                    onClick={() => onSocial("github")}
                   >
-                    Github
+                    <FaGithub />
+                  
                   </Button>
                 </div>
-                <div className="text-center text-sm">
+                <div className="text-center cursor-pointer text-sm">
                   Already have an account?{" "}
                   <Link
                     href="/sign-in"
-                    className="underline underline-offset-4"
+                    className="underline underline-offset-4 cursor-pointer"
                   >
                     Sign in
                   </Link>
