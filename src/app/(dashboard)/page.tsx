@@ -7,7 +7,7 @@ import { caller } from "@/trpc/server";
 
 
 const Page = async() => {
-  const data = await caller.hello({ text: "Maddy server" });
+  const data = await caller.agents.getMany();
   const session = await auth.api.getSession({
     headers: await headers(),
   });
